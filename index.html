@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Esperanza Runs — Tracker</title>
+<style>
+  /* ── Reset & Base ──────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:        #0d1117;
+    --surface:   #161b22;
+    --surface2:  #1c2333;
+    --border:    #30363d;
+    --text:      #e6edf3;
+    --text-dim:  #8b949e;
+    --green:     #3fb950;
+    --green-dim: #1a3a2a;
+    --red:       #f85149;
+    --red-dim:   #3d1a1a;
+    --yellow:    #d29922;
+    --blue:      #58a6ff;
+    --cyan:      #39d2c0;
+    --orange:    #f0883e;
+  }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* ── Title ─────────────────────────────────────────── */
+  .title {
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    padding: 16px 0 8px;
+    border-bottom: 3px solid var(--green);
+    margin-bottom: 24px;
+    text-transform: uppercase;
+  }
+
+  /* ── Grid Layout ───────────────────────────────────── */
+  .top-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+  }
+  .card-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--yellow);
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
+  }
+
+  /* ── Settings Card ─────────────────────────────────── */
+  .settings-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+  }
+  .settings-row .icon { font-size: 1rem; }
+  .settings-row input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    padding: 2px 8px;
+    width: 90px;
+    font-size: 0.85rem;
+    text-align: center;
+  }
+  .settings-row label { color: var(--text-dim); min-width: 80px; }
+
+  /* ── Checklist Card ────────────────────────────────── */
+  .checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    margin-bottom: 4px;
+    color: var(--text-dim);
+  }
+  .checklist-item .num {
+    background: var(--blue);
+    color: #000;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ── Stats Card ────────────────────────────────────── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .stat-box {
+    text-align: center;
+    padding: 10px 8px;
+    border-radius: 8px;
+  }
+  .stat-box.success  { background: var(--green-dim); border: 1px solid var(--green); }
+  .stat-box.fail     { background: var(--red-dim); border: 1px solid var(--red); }
+  .stat-box.total    { background: var(--surface2); border: 1px solid var(--border); }
+  .stat-box.rate     { background: var(--surface2); border: 1px solid var(--cyan); }
+  .stat-box .stat-num {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+  .stat-box.success .stat-num { color: var(--green); }
+  .stat-box.fail    .stat-num { color: var(--red); }
+  .stat-box.total   .stat-num { color: var(--text); }
+  .stat-box.rate    .stat-num { color: var(--cyan); }
+  .stat-box .stat-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* ── Bottom Stats Row ──────────────────────────────── */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .mini-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+  }
+  .mini-stat .label { color: var(--text-dim); }
+  .mini-stat .value { font-weight: 700; }
+  .mini-stat .value.green { color: var(--green); }
+  .mini-stat .value.red   { color: var(--red); }
+  .mini-stat .value.cyan  { color: var(--cyan); }
+
+  .pattern-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 0.8rem;
+    margin-bottom: 5px;
+    color: var(--text-dim);
+  }
+  .pattern-item .dot {
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-top: 6px;
+  }
+  .pattern-item .dot.green { background: var(--green); }
+  .pattern-item .dot.red   { background: var(--red); }
+  .pattern-item .dot.blue  { background: var(--blue); }
+
+  /* ── Quick Add Bar ─────────────────────────────────── */
+  .quick-add {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+  }
+  .quick-add-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .quick-add-header h2 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--yellow);
+  }
+  .quick-add-header .run-preview {
+    color: var(--text-dim);
+    font-size: 0.8rem;
+  }
+  .quick-add-header .run-preview strong {
+    color: var(--text);
+  }
+  .quick-btns {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .quick-btn {
+    flex: 1;
+    padding: 18px 24px;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    letter-spacing: 0.5px;
+  }
+  .quick-btn.success {
+    background: var(--green-dim);
+    color: var(--green);
+    border-color: #2a5a3a;
+  }
+  .quick-btn.success:hover {
+    background: #1f4a2f;
+    border-color: var(--green);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(63, 185, 80, 0.2);
+  }
+  .quick-btn.success:active {
+    transform: translateY(0);
+    background: #2a6a3a;
+  }
+  .quick-btn.fail {
+    background: var(--red-dim);
+    color: var(--red);
+    border-color: #5a2a2a;
+  }
+  .quick-btn.fail:hover {
+    background: #4a1a1a;
+    border-color: var(--red);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(248, 81, 73, 0.2);
+  }
+  .quick-btn.fail:active {
+    transform: translateY(0);
+    background: #5a2a2a;
+  }
+  .quick-btn .key-hint {
+    font-size: 0.65rem;
+    font-weight: 400;
+    opacity: 0.6;
+    letter-spacing: 0;
+    background: rgba(255,255,255,0.08);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  /* ── Detail Form (expandable) ──────────────────────── */
+  .detail-form {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.25s ease, margin 0.3s ease;
+    margin-top: 0;
+  }
+  .detail-form.open {
+    max-height: 200px;
+    opacity: 1;
+    margin-top: 12px;
+  }
+  .detail-form-inner {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 14px 16px;
+    background: var(--surface2);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .detail-form-inner .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .detail-form-inner .field-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+  }
+  .detail-form-inner select,
+  .detail-form-inner input[type="number"],
+  .detail-form-inner input[type="text"] {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 7px 12px;
+    font-size: 0.85rem;
+  }
+  .detail-form-inner select { min-width: 120px; }
+  .detail-form-inner input[type="number"] { width: 70px; text-align: center; }
+  .detail-form-inner input[type="text"] { flex: 1; min-width: 180px; }
+  .detail-form-inner .notes-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 180px;
+  }
+  .detail-form-inner .notes-presets {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .note-preset {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-dim);
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .note-preset:hover {
+    border-color: var(--blue);
+    color: var(--blue);
+  }
+  .note-preset.active {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    background: rgba(57, 210, 192, 0.08);
+  }
+  .detail-form-inner .submit-btn {
+    background: var(--green);
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    padding: 7px 20px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+    align-self: flex-end;
+  }
+  .detail-form-inner .submit-btn:hover { opacity: 0.85; }
+  .toggle-detail {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 0.78rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.15s;
+  }
+  .toggle-detail:hover { color: var(--blue); }
+  .toggle-detail .arrow {
+    transition: transform 0.3s;
+    display: inline-block;
+  }
+  .toggle-detail .arrow.open { transform: rotate(180deg); }
+
+  /* ── Table ─────────────────────────────────────────── */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .table-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .table-header-bar h2 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--yellow);
+  }
+  .table-tools {
+    display: flex;
+    gap: 8px;
+  }
+  .table-tools button {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .table-tools button:hover {
+    border-color: var(--blue);
+    color: var(--blue);
+  }
+  .table-tools button.danger:hover {
+    border-color: var(--red);
+    color: var(--red);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  thead th {
+    background: var(--surface2);
+    color: var(--text-dim);
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 2px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  tbody tr:hover { background: var(--surface2); }
+  tbody td {
+    padding: 8px 14px;
+    vertical-align: middle;
+  }
+  td.run-num {
+    font-weight: 700;
+    color: var(--text-dim);
+    width: 50px;
+    text-align: center;
+  }
+  /* ── Editable cell hover ─── */
+  td.editable { cursor: pointer; position: relative; }
+  td.editable::after {
+    content: '✎';
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  tr:hover td.editable::after { opacity: 0.5; }
+  /* ── Inline edit input ─── */
+  td.editable input,
+  td.editable select {
+    background: var(--bg);
+    border: 1px solid var(--blue);
+    border-radius: 4px;
+    color: var(--text);
+    padding: 3px 6px;
+    font-size: 0.85rem;
+    width: 100%;
+    outline: none;
+  }
+  td.editable input:focus,
+  td.editable select:focus { box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.25); }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.5px;
+  }
+  .badge.success {
+    background: var(--green-dim);
+    color: var(--green);
+    border: 1px solid #2a5a3a;
+  }
+  .badge.fail {
+    background: var(--red-dim);
+    color: var(--red);
+    border: 1px solid #5a2a2a;
+  }
+  .badge.clickable { cursor: pointer; transition: filter 0.15s; }
+  .badge.clickable:hover { filter: brightness(1.3); }
+  .inv-status {
+    font-size: 0.8rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .inv-status.safe {
+    background: #1a2a3a;
+    color: var(--blue);
+  }
+  .inv-status.empty {
+    background: #3a2a1a;
+    color: var(--orange);
+  }
+  .inv-status.clickable { cursor: pointer; transition: filter 0.15s; }
+  .inv-status.clickable:hover { filter: brightness(1.3); }
+  td.notes-cell {
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    max-width: 400px;
+  }
+  td.items-cell {
+    text-align: center;
+    font-weight: 700;
+  }
+  td .delete-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    transition: all 0.15s;
+  }
+  td .delete-btn:hover {
+    border-color: var(--red);
+    color: var(--red);
+    background: var(--red-dim);
+  }
+  td.ts-cell {
+    color: var(--text-dim);
+    font-size: 0.72rem;
+    white-space: nowrap;
+  }
+
+  /* ── Config cell + tooltip ──────────────────────────── */
+  td.config-cell { position: relative; }
+  .config-pill {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 7px;
+    cursor: help;
+    white-space: nowrap;
+    display: inline-block;
+    transition: all 0.15s;
+  }
+  .config-pill:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+  }
+  .config-pill.changed {
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+  .config-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    z-index: 50;
+    white-space: nowrap;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    font-size: 0.78rem;
+    min-width: 160px;
+  }
+  .config-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--border);
+  }
+  td.config-cell:hover .config-tooltip { display: block; }
+  .config-tooltip .cfg-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 3px;
+  }
+  .config-tooltip .cfg-row .cfg-label { color: var(--text-dim); }
+  .config-tooltip .cfg-row .cfg-val   { color: var(--text); font-weight: 600; }
+  .config-tooltip .cfg-row .cfg-val.diff { color: var(--orange); }
+
+  /* ── Row flash animation ───────────────────────────── */
+  @keyframes rowFlash {
+    0%   { background: rgba(63, 185, 80, 0.25); }
+    100% { background: transparent; }
+  }
+  tr.flash { animation: rowFlash 1.2s ease-out; }
+
+  /* ── Empty state ───────────────────────────────────── */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-dim);
+  }
+  .empty-state .icon { font-size: 2.5rem; margin-bottom: 8px; }
+  .empty-state p { font-size: 0.9rem; }
+  .empty-state button {
+    margin-top: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--blue);
+    border-radius: 6px;
+    padding: 8px 20px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .empty-state button:hover { border-color: var(--blue); }
+
+  /* ── Toast ─────────────────────────────────────────── */
+  .toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+  .toast {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    animation: toastIn 0.3s ease;
+    min-width: 280px;
+  }
+  .toast.success { border-color: var(--green); }
+  .toast.fail    { border-color: var(--red); }
+  .toast.info    { border-color: var(--blue); }
+  .toast .toast-icon { font-size: 1.1rem; }
+  .toast .toast-msg  { flex: 1; font-size: 0.85rem; }
+  .toast .toast-undo {
+    background: rgba(88, 166, 255, 0.12);
+    border: 1px solid var(--blue);
+    color: var(--blue);
+    border-radius: 5px;
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.15s;
+  }
+  .toast .toast-undo:hover { background: rgba(88, 166, 255, 0.25); }
+  .toast .toast-close {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0 4px;
+  }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateY(16px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .toast.out {
+    animation: toastOut 0.25s ease forwards;
+  }
+  @keyframes toastOut {
+    to { opacity: 0; transform: translateY(8px) scale(0.96); }
+  }
+
+  /* ── Streak Bar ────────────────────────────────────── */
+  .streak-bar {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .streak-bar .dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 700;
+  }
+  .streak-bar .dot.s { background: var(--green-dim); color: var(--green); border: 1px solid #2a5a3a; }
+  .streak-bar .dot.f { background: var(--red-dim); color: var(--red); border: 1px solid #5a2a2a; }
+
+  /* ── Responsive ────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .top-grid, .bottom-grid { grid-template-columns: 1fr; }
+    .quick-btns { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="title">Esperanza Runs — Test Summary & Analysis</div>
+
+<!-- ── TOP GRID: Settings + Checklist + Stats ── -->
+<div class="top-grid">
+  <div class="card">
+    <div class="card-title">Setup & Settings</div>
+    <div class="settings-row"><span class="icon">⏱️</span><label>Delay</label>       <input id="s-delay"    value="1100ms"></div>
+    <div class="settings-row"><span class="icon">🎞️</span><label>FPS Limit</label>   <input id="s-fps"      value="30"></div>
+    <div class="settings-row"><span class="icon">👥</span><label>Characters</label>  <input id="s-chars"    value="Back"></div>
+    <div class="settings-row"><span class="icon">🎬</span><label>Cutscene</label>    <input id="s-cutscene" value="2"></div>
+    <div class="settings-row"><span class="icon">🔴</span><label>Dupe (Lobby)</label><input id="s-dupe"     value="OFF"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Return to Lobby Checklist</div>
+    <div class="checklist-item"><span class="num">1</span> Dupe OFF</div>
+    <div class="checklist-item"><span class="num">2</span> Open Inventory</div>
+    <div class="checklist-item"><span class="num">3</span> Check Items Count</div>
+    <div class="checklist-item"><span class="num">4</span> Split if Failed</div>
+    <div class="checklist-item"><span class="num">5</span> Ready Up</div>
+    <div class="checklist-item"><span class="num">6</span> Stay on Program Tab</div>
+    <div class="checklist-item"><span class="num">7</span> Check Again Before Run</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Overall Results</div>
+    <div class="stats-grid">
+      <div class="stat-box success"><div class="stat-num" id="d-success">0</div><div class="stat-label">Successes</div></div>
+      <div class="stat-box fail">   <div class="stat-num" id="d-fail">0</div>   <div class="stat-label">Failures</div></div>
+      <div class="stat-box total">  <div class="stat-num" id="d-total">0</div>  <div class="stat-label">Total Runs</div></div>
+      <div class="stat-box rate">   <div class="stat-num" id="d-rate">0%</div>  <div class="stat-label">Success Rate</div></div>
+    </div>
+    <div style="margin-top:12px;">
+      <div class="card-title" style="margin-bottom:6px;">Results Timeline</div>
+      <div class="streak-bar" id="d-timeline"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── BOTTOM GRID ── -->
+<div class="bottom-grid">
+  <div class="card">
+    <div class="card-title">Items Distribution</div>
+    <div id="d-items-dist"></div>
+    <div style="margin-top:10px; border-top:1px solid var(--border); padding-top:8px;">
+      <div class="mini-stat"><span class="label">Best Streak</span><span class="value green" id="d-streak">—</span></div>
+      <div class="mini-stat"><span class="label">Current Streak</span><span class="value cyan" id="d-cur-streak">—</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Main Failure Patterns</div>
+    <div class="pattern-item"><span class="dot red"></span> Clicking too early at cutscene transition</div>
+    <div class="pattern-item"><span class="dot red"></span> Not paying attention / missing the window</div>
+    <div class="pattern-item"><span class="dot red"></span> Inventory came back empty (0 or 5 items)</div>
+    <div class="pattern-item"><span class="dot red"></span> Getting into train (dupe off) due to distraction</div>
+    <div class="pattern-item"><span class="dot red"></span> Inconsistent timing or not following checklist</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Recommendations</div>
+    <div class="pattern-item"><span class="dot green"></span> Keep the same rhythm and timing</div>
+    <div class="pattern-item"><span class="dot green"></span> Don't rush the cutscene transition</div>
+    <div class="pattern-item"><span class="dot green"></span> Always check inventory twice</div>
+    <div class="pattern-item"><span class="dot blue"></span>  Stay on program tab before every run</div>
+    <div class="pattern-item"><span class="dot blue"></span>  If failed, split items (safe pocket)</div>
+    <div class="pattern-item"><span class="dot blue"></span>  Stay focused — most fails are from distraction</div>
+  </div>
+</div>
+
+<!-- ── QUICK ADD ── -->
+<div class="quick-add">
+  <div class="quick-add-header">
+    <h2>Quick Add</h2>
+    <span class="run-preview">Next run: <strong id="d-next-run">#1</strong></span>
+  </div>
+  <div class="quick-btns">
+    <button class="quick-btn success" onclick="quickAdd('SUCCESS')" id="btn-quick-success">
+      ✅ SUCCESS <span class="key-hint">S</span>
+    </button>
+    <button class="quick-btn fail" onclick="quickAdd('FAIL')" id="btn-quick-fail">
+      ❌ FAIL <span class="key-hint">F</span>
+    </button>
+  </div>
+  <button class="toggle-detail" onclick="toggleDetail()">
+    <span class="arrow" id="detail-arrow">▼</span> Add with details
+  </button>
+  <div class="detail-form" id="detail-form">
+    <div class="detail-form-inner">
+      <div class="field-group">
+        <span class="field-label">Result</span>
+        <select id="f-result">
+          <option value="SUCCESS">✅ SUCCESS</option>
+          <option value="FAIL">❌ FAIL</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <span class="field-label">Items</span>
+        <input type="number" id="f-items" min="0" value="3">
+      </div>
+      <div class="field-group">
+        <span class="field-label">Inv. Status</span>
+        <select id="f-inv">
+          <option value="QUICK USE + SAFE">QUICK USE + SAFE</option>
+          <option value="EMPTY">EMPTY</option>
+        </select>
+      </div>
+      <div class="notes-wrap">
+        <span class="field-label">Notes</span>
+        <div class="notes-presets" id="note-presets"></div>
+        <input type="text" id="f-notes" placeholder="Type notes or click a preset above...">
+      </div>
+      <button class="submit-btn" onclick="addRunFromForm()">+ Add Run</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── RUN LOG TABLE ── -->
+<div class="table-wrap">
+  <div class="table-header-bar">
+    <h2>Run Log</h2>
+    <div class="table-tools">
+      <span style="color:var(--text-dim); font-size:0.78rem; display:flex; align-items:center;" id="d-table-count"></span>
+      <button onclick="exportCSV()">📥 CSV</button>
+      <button onclick="backupJSON()">💾 Backup</button>
+      <button onclick="document.getElementById('restore-input').click()">📂 Restore</button>
+      <input type="file" id="restore-input" accept=".json" style="display:none" onchange="restoreJSON(this)">
+      <button class="danger" onclick="clearAll()">🗑️ Clear</button>
+    </div>
+  </div>
+  <div style="max-height: 520px; overflow-y: auto;" id="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:50px;text-align:center">Run</th>
+          <th style="width:110px">Result</th>
+          <th style="width:70px;text-align:center">Items</th>
+          <th style="width:160px">Inv. Status</th>
+          <th>Notes</th>
+          <th style="width:90px">Time</th>
+          <th style="width:110px">Config</th>
+          <th style="width:40px"></th>
+        </tr>
+      </thead>
+      <tbody id="run-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── TOAST CONTAINER ── -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ── Constants ───────────────────────────────────────────
+const STORAGE_KEY  = 'esperanza_runs';
+const SETTINGS_KEY = 'esperanza_settings';
+const DEFAULT_NOTE = 'Clicked "dupe on" the second cinematic started';
+const DEFAULT_SETTINGS = { delay: '1100ms', fps: '30', chars: 'Back', cutscene: '2', dupe: 'OFF' };
+
+const NOTE_PRESETS = [
+  { label: 'Dupe on cinematic', text: DEFAULT_NOTE },
+  { label: 'Too early',         text: 'Clicked too early at cutscene transition' },
+  { label: 'Missed window',     text: 'Missed the timing window' },
+  { label: 'Not paying attention', text: 'Was not paying attention, missed the window' },
+  { label: 'Inventory empty',   text: 'Inventory came back empty' },
+  { label: 'Duck escaped',      text: 'Duck escaped' },
+];
+
+const INITIAL_RUNS = [
+  { result: 'SUCCESS', items: 3, inv: 'QUICK USE + SAFE', notes: DEFAULT_NOTE },
+  { result: 'FAIL',    items: 0, inv: 'EMPTY',            notes: 'Clicked microsecond cutscene changed (too early)' },
+  { result: 'SUCCESS', items: 3, inv: 'QUICK USE + SAFE', notes: DEFAULT_NOTE },
+  { result: 'SUCCESS', items: 3, inv: 'QUICK USE + SAFE', notes: DEFAULT_NOTE },
+  { result: 'SUCCESS', items: 3, inv: 'QUICK USE + SAFE', notes: 'Duck escaped \u2013 Clicked "dupe on" the second cinematic started' },
+  { result: 'SUCCESS', items: 3, inv: 'QUICK USE + SAFE', notes: 'Missed window, almost train/cart \u2013 Clicked "dupe on" the second cinematic started' },
+  { result: 'SUCCESS', items: 3, inv: 'QUICK USE + SAFE', notes: 'Microsecond spam 2nd cutscene \u2013 Clicked "dupe on" the second cinematic started' },
+  { result: 'SUCCESS', items: 3, inv: 'QUICK USE + SAFE', notes: DEFAULT_NOTE },
+  { result: 'SUCCESS', items: 3, inv: 'QUICK USE + SAFE', notes: DEFAULT_NOTE },
+  { result: 'SUCCESS', items: 3, inv: 'QUICK USE + SAFE', notes: DEFAULT_NOTE },
+  { result: 'SUCCESS', items: 3, inv: 'QUICK USE + SAFE', notes: DEFAULT_NOTE },
+  { result: 'SUCCESS', items: 3, inv: 'QUICK USE + SAFE', notes: DEFAULT_NOTE },
+  { result: 'SUCCESS', items: 3, inv: 'QUICK USE + SAFE', notes: 'Missed window (was on my phone :v) \u2013 almost train. Clicked "dupe on" the second cinematic started' },
+  { result: 'SUCCESS', items: 3, inv: 'QUICK USE + SAFE', notes: DEFAULT_NOTE },
+  { result: 'FAIL',    items: 0, inv: 'EMPTY',            notes: '0 items found' },
+  { result: 'FAIL',    items: 5, inv: 'EMPTY',            notes: '5 items found but inventory empty' },
+  { result: 'SUCCESS', items: 3, inv: 'QUICK USE + SAFE', notes: DEFAULT_NOTE },
+  { result: 'FAIL',    items: 0, inv: 'EMPTY',            notes: "Wasn't paying attention, dupe off getting into train \u2013 inventory empty" },
+  { result: 'SUCCESS', items: 3, inv: 'QUICK USE + SAFE', notes: DEFAULT_NOTE },
+  { result: 'SUCCESS', items: 3, inv: 'QUICK USE + SAFE', notes: DEFAULT_NOTE },
+  { result: 'FAIL',    items: 3, inv: 'QUICK USE + SAFE', notes: DEFAULT_NOTE },
+];
+
+// Backfill settings for initial runs
+INITIAL_RUNS.forEach(r => { if (!r.settings) r.settings = { ...DEFAULT_SETTINGS }; });
+
+// ── Data Layer ──────────────────────────────────────────
+function loadRuns() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw !== null) {
+    try { return JSON.parse(raw); } catch { /* fall through */ }
+  }
+  // First visit: seed with initial data and persist it
+  saveRuns(INITIAL_RUNS);
+  return [...INITIAL_RUNS];
+}
+
+function saveRuns(runs) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(runs));
+}
+
+function getSettings() {
+  return {
+    delay:    document.getElementById('s-delay').value,
+    fps:      document.getElementById('s-fps').value,
+    chars:    document.getElementById('s-chars').value,
+    cutscene: document.getElementById('s-cutscene').value,
+    dupe:     document.getElementById('s-dupe').value,
+  };
+}
+
+// ── Undo Stack ──────────────────────────────────────────
+let undoTimer = null;
+
+function pushUndo(action, payload, toastId) {
+  // Store undo data on the toast element itself
+  const toast = document.getElementById(toastId);
+  if (toast) {
+    toast._undoAction  = action;
+    toast._undoPayload = payload;
+  }
+}
+
+function executeUndo(toastId) {
+  const toast = document.getElementById(toastId);
+  if (!toast || !toast._undoAction) return;
+
+  const runs = loadRuns();
+  const action  = toast._undoAction;
+  const payload = toast._undoPayload;
+
+  if (action === 'add') {
+    // Undo add: remove the last run
+    runs.pop();
+  } else if (action === 'delete') {
+    // Undo delete: re-insert at original index
+    runs.splice(payload.index, 0, payload.run);
+  } else if (action === 'edit') {
+    // Undo edit: restore old value
+    runs[payload.index] = { ...runs[payload.index], ...payload.old };
+  } else if (action === 'clear') {
+    // Undo clear: restore all runs
+    saveRuns(payload.runs);
+    render();
+    dismissToast(toastId);
+    showToast('Restored ' + payload.runs.length + ' runs', 'info', false);
+    return;
+  }
+
+  saveRuns(runs);
+  render();
+  dismissToast(toastId);
+}
+
+// ── Toast System ────────────────────────────────────────
+let toastCounter = 0;
+
+function showToast(message, type = 'success', undoable = false) {
+  const id = 'toast-' + (++toastCounter);
+  const container = document.getElementById('toast-container');
+
+  const icon = type === 'success' ? '✅' : type === 'fail' ? '❌' : 'ℹ️';
+  const undoBtn = undoable
+    ? `<button class="toast-undo" onclick="executeUndo('${id}')">UNDO</button>`
+    : '';
+
+  const el = document.createElement('div');
+  el.id = id;
+  el.className = `toast ${type}`;
+  el.innerHTML = `
+    <span class="toast-icon">${icon}</span>
+    <span class="toast-msg">${message}</span>
+    ${undoBtn}
+    <button class="toast-close" onclick="dismissToast('${id}')">&times;</button>
+  `;
+  container.appendChild(el);
+
+  // Auto-dismiss after 5s (longer if undoable)
+  const delay = undoable ? 6000 : 3000;
+  setTimeout(() => dismissToast(id), delay);
+
+  return id;
+}
+
+function dismissToast(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add('out');
+  setTimeout(() => el.remove(), 250);
+}
+
+// ── Calculations ────────────────────────────────────────
+function calcStats(runs) {
+  const total     = runs.length;
+  const successes = runs.filter(r => r.result === 'SUCCESS').length;
+  const failures  = total - successes;
+  const rate      = total > 0 ? (successes / total * 100) : 0;
+
+  let best = 0, cur = 0, bestStart = 0, bestEnd = 0, tmpStart = 0;
+  runs.forEach((r, i) => {
+    if (r.result === 'SUCCESS') {
+      if (cur === 0) tmpStart = i;
+      cur++;
+      if (cur > best) { best = cur; bestStart = tmpStart; bestEnd = i; }
+    } else { cur = 0; }
+  });
+  const currentStreak = cur;
+
+  const itemCounts = {};
+  runs.forEach(r => { itemCounts[r.items] = (itemCounts[r.items] || 0) + 1; });
+
+  return { total, successes, failures, rate, best, bestStart, bestEnd, currentStreak, itemCounts };
+}
+
+// ── Time Formatting ─────────────────────────────────────
+function formatTime(ts) {
+  if (!ts) return '\u2014';
+  const diff = Date.now() - ts;
+  const sec  = Math.floor(diff / 1000);
+  if (sec < 60)   return 'just now';
+  if (sec < 3600) return Math.floor(sec / 60) + 'm ago';
+  if (sec < 86400) return Math.floor(sec / 3600) + 'h ago';
+  const d = new Date(ts);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+// ── Rendering ───────────────────────────────────────────
+let flashIndex = -1; // index of newly added row to flash
+
+function render() {
+  const runs  = loadRuns();
+  const stats = calcStats(runs);
+
+  // Stats
+  document.getElementById('d-success').textContent = stats.successes;
+  document.getElementById('d-fail').textContent    = stats.failures;
+  document.getElementById('d-total').textContent   = stats.total;
+  document.getElementById('d-rate').textContent    = stats.total > 0 ? stats.rate.toFixed(1) + '%' : '\u2014';
+  document.getElementById('d-table-count').textContent = stats.total + ' runs';
+  document.getElementById('d-next-run').textContent = '#' + (stats.total + 1);
+
+  // Streak
+  document.getElementById('d-streak').textContent = stats.best > 0
+    ? `${stats.best} (Runs ${stats.bestStart + 1}\u2013${stats.bestEnd + 1})` : '\u2014';
+  document.getElementById('d-cur-streak').textContent =
+    stats.currentStreak > 0 ? stats.currentStreak : '\u2014';
+
+  // Timeline
+  document.getElementById('d-timeline').innerHTML = runs.map((r, i) =>
+    `<div class="dot ${r.result === 'SUCCESS' ? 's' : 'f'}" title="Run ${i+1}: ${r.result}">${i+1}</div>`
+  ).join('');
+
+  // Items distribution
+  const sorted = Object.entries(stats.itemCounts).sort((a, b) => b[1] - a[1]);
+  document.getElementById('d-items-dist').innerHTML = sorted.map(([k, v]) =>
+    `<div class="mini-stat"><span class="label">${k} Items</span><span class="value">${v}</span></div>`
+  ).join('');
+
+  // Table
+  const tbody = document.getElementById('run-tbody');
+  if (runs.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8">
+      <div class="empty-state">
+        <div class="icon">📋</div>
+        <p>No runs logged yet. Use Quick Add above!</p>
+        <button onclick="resetToInitial()">Load initial 21 runs</button>
+      </div>
+    </td></tr>`;
+  } else {
+    tbody.innerHTML = runs.map((r, i) => {
+      const resClass = r.result === 'SUCCESS' ? 'success' : 'fail';
+      const resIcon  = r.result === 'SUCCESS' ? '✅' : '❌';
+      const invClass = r.inv === 'EMPTY' ? 'empty' : 'safe';
+      const flash    = i === flashIndex ? ' class="flash"' : '';
+      return `<tr${flash}>
+        <td class="run-num">${i + 1}</td>
+        <td class="editable" onclick="toggleResult(${i})"><span class="badge ${resClass} clickable">${resIcon} ${r.result}</span></td>
+        <td class="items-cell editable" onclick="editItems(${i}, this)">${r.items}</td>
+        <td class="editable" onclick="toggleInv(${i})"><span class="inv-status ${invClass} clickable">${r.inv}</span></td>
+        <td class="notes-cell editable" onclick="editNotes(${i}, this)">${escapeHtml(r.notes)}</td>
+        <td class="ts-cell">${formatTime(r.ts)}</td>
+        <td class="config-cell">${renderConfigCell(r)}</td>
+        <td><button class="delete-btn" onclick="deleteRun(${i})">✕</button></td>
+      </tr>`;
+    }).join('');
+  }
+
+  flashIndex = -1;
+}
+
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str || '';
+  return d.innerHTML;
+}
+
+function renderConfigCell(run) {
+  const cfg = run.settings;
+  if (!cfg) return '<span class="config-pill">&mdash;</span>';
+
+  const cur = getSettings();
+  const isDiff = cfg.delay !== cur.delay || cfg.fps !== cur.fps
+    || cfg.chars !== cur.chars || cfg.cutscene !== cur.cutscene || cfg.dupe !== cur.dupe;
+
+  const label = `${cfg.delay} / ${cfg.fps}fps / C${cfg.cutscene}`;
+  const pillClass = isDiff ? 'config-pill changed' : 'config-pill';
+  const diffClass = (f) => cfg[f] !== cur[f] ? ' diff' : '';
+
+  return `<span class="${pillClass}">\u2699 ${escapeHtml(label)}</span>
+    <div class="config-tooltip">
+      <div class="cfg-row"><span class="cfg-label">Delay</span><span class="cfg-val${diffClass('delay')}">${escapeHtml(cfg.delay)}</span></div>
+      <div class="cfg-row"><span class="cfg-label">FPS Limit</span><span class="cfg-val${diffClass('fps')}">${escapeHtml(cfg.fps)}</span></div>
+      <div class="cfg-row"><span class="cfg-label">Characters</span><span class="cfg-val${diffClass('chars')}">${escapeHtml(cfg.chars)}</span></div>
+      <div class="cfg-row"><span class="cfg-label">Cutscene</span><span class="cfg-val${diffClass('cutscene')}">${escapeHtml(cfg.cutscene)}</span></div>
+      <div class="cfg-row"><span class="cfg-label">Dupe</span><span class="cfg-val${diffClass('dupe')}">${escapeHtml(cfg.dupe)}</span></div>
+    </div>`;
+}
+
+// ── Quick Add ───────────────────────────────────────────
+function quickAdd(result) {
+  const runs = loadRuns();
+  const run = {
+    result,
+    items: result === 'SUCCESS' ? 3 : 0,
+    inv:   result === 'SUCCESS' ? 'QUICK USE + SAFE' : 'EMPTY',
+    notes: result === 'SUCCESS' ? DEFAULT_NOTE : '',
+    ts:    Date.now(),
+    settings: getSettings(),
+  };
+  runs.push(run);
+  saveRuns(runs);
+  flashIndex = runs.length - 1;
+  render();
+  scrollToBottom();
+
+  const num = runs.length;
+  const toastId = showToast(`Run #${num} added — ${result}`, result === 'SUCCESS' ? 'success' : 'fail', true);
+  pushUndo('add', { index: runs.length - 1 }, toastId);
+
+  // If FAIL, open detail form and focus notes for editing
+  if (result === 'FAIL') {
+    openDetailForEdit(runs.length - 1);
+  }
+}
+
+function openDetailForEdit(index) {
+  const form = document.getElementById('detail-form');
+  if (!form.classList.contains('open')) {
+    form.classList.add('open');
+    document.getElementById('detail-arrow').classList.add('open');
+  }
+  document.getElementById('f-result').value = 'FAIL';
+  document.getElementById('f-items').value  = '0';
+  document.getElementById('f-inv').value    = 'EMPTY';
+  document.getElementById('f-notes').value  = '';
+  // Focus notes for the user to type the failure reason
+  setTimeout(() => document.getElementById('f-notes').focus(), 100);
+}
+
+// ── Detail Form ─────────────────────────────────────────
+function toggleDetail() {
+  const form  = document.getElementById('detail-form');
+  const arrow = document.getElementById('detail-arrow');
+  form.classList.toggle('open');
+  arrow.classList.toggle('open');
+}
+
+function addRunFromForm() {
+  const result = document.getElementById('f-result').value;
+  const items  = parseInt(document.getElementById('f-items').value, 10) || 0;
+  const inv    = document.getElementById('f-inv').value;
+  const notes  = document.getElementById('f-notes').value.trim();
+
+  const runs = loadRuns();
+  const run = { result, items, inv, notes, ts: Date.now(), settings: getSettings() };
+  runs.push(run);
+  saveRuns(runs);
+  flashIndex = runs.length - 1;
+  document.getElementById('f-notes').value = '';
+  render();
+  scrollToBottom();
+
+  const toastId = showToast(`Run #${runs.length} added — ${result}`, result === 'SUCCESS' ? 'success' : 'fail', true);
+  pushUndo('add', {}, toastId);
+}
+
+// ── Note Presets ────────────────────────────────────────
+function initPresets() {
+  const container = document.getElementById('note-presets');
+  container.innerHTML = NOTE_PRESETS.map((p, i) =>
+    `<span class="note-preset" onclick="applyPreset(${i})" data-idx="${i}">${p.label}</span>`
+  ).join('');
+}
+
+function applyPreset(idx) {
+  const input = document.getElementById('f-notes');
+  input.value = NOTE_PRESETS[idx].text;
+  // Toggle active state
+  document.querySelectorAll('.note-preset').forEach((el, i) => {
+    el.classList.toggle('active', i === idx);
+  });
+  input.focus();
+}
+
+// ── Inline Editing ──────────────────────────────────────
+function toggleResult(index) {
+  const runs = loadRuns();
+  const old  = { result: runs[index].result };
+  runs[index].result = runs[index].result === 'SUCCESS' ? 'FAIL' : 'SUCCESS';
+  saveRuns(runs);
+  render();
+
+  const toastId = showToast(`Run #${index + 1} → ${runs[index].result}`, 'info', true);
+  pushUndo('edit', { index, old }, toastId);
+}
+
+function toggleInv(index) {
+  const runs = loadRuns();
+  const old  = { inv: runs[index].inv };
+  runs[index].inv = runs[index].inv === 'EMPTY' ? 'QUICK USE + SAFE' : 'EMPTY';
+  saveRuns(runs);
+  render();
+
+  const toastId = showToast(`Run #${index + 1} inv → ${runs[index].inv}`, 'info', true);
+  pushUndo('edit', { index, old }, toastId);
+}
+
+function editItems(index, td) {
+  if (td.querySelector('input')) return; // already editing
+  const runs  = loadRuns();
+  const value = runs[index].items;
+
+  td.innerHTML = `<input type="number" value="${value}" min="0" style="width:50px;text-align:center">`;
+  const input = td.querySelector('input');
+  input.focus();
+  input.select();
+
+  function save() {
+    const newVal = parseInt(input.value, 10) || 0;
+    if (newVal !== value) {
+      const old = { items: value };
+      runs[index].items = newVal;
+      saveRuns(runs);
+      const toastId = showToast(`Run #${index + 1} items → ${newVal}`, 'info', true);
+      pushUndo('edit', { index, old }, toastId);
+    }
+    render();
+  }
+
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter')  { e.preventDefault(); save(); }
+    if (e.key === 'Escape') { render(); }
+  });
+}
+
+function editNotes(index, td) {
+  if (td.querySelector('input')) return;
+  const runs  = loadRuns();
+  const value = runs[index].notes || '';
+
+  td.innerHTML = `<input type="text" value="${escapeAttr(value)}" style="width:100%">`;
+  const input = td.querySelector('input');
+  input.focus();
+
+  function save() {
+    const newVal = input.value.trim();
+    if (newVal !== value) {
+      const old = { notes: value };
+      runs[index].notes = newVal;
+      saveRuns(runs);
+      const toastId = showToast(`Run #${index + 1} notes updated`, 'info', true);
+      pushUndo('edit', { index, old }, toastId);
+    }
+    render();
+  }
+
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter')  { e.preventDefault(); save(); }
+    if (e.key === 'Escape') { render(); }
+  });
+}
+
+function escapeAttr(str) {
+  return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+// ── Delete ──────────────────────────────────────────────
+function deleteRun(index) {
+  const runs = loadRuns();
+  const removed = runs.splice(index, 1)[0];
+  saveRuns(runs);
+  render();
+
+  const toastId = showToast(`Run #${index + 1} deleted`, 'fail', true);
+  pushUndo('delete', { index, run: removed }, toastId);
+}
+
+// ── Clear All ───────────────────────────────────────────
+function clearAll() {
+  const runs = loadRuns();
+  if (runs.length === 0) return;
+  if (!confirm(`Clear all ${runs.length} runs? You can undo this.`)) return;
+
+  const backup = [...runs];
+  saveRuns([]);
+  render();
+
+  const toastId = showToast(`Cleared ${backup.length} runs`, 'fail', true);
+  pushUndo('clear', { runs: backup }, toastId);
+}
+
+function resetToInitial() {
+  saveRuns([...INITIAL_RUNS]);
+  render();
+  showToast('Loaded initial 21 runs', 'info');
+}
+
+// ── Export ───────────────────────────────────────────────
+function exportCSV() {
+  const runs = loadRuns();
+  if (runs.length === 0) { showToast('No data to export', 'info'); return; }
+  const header = 'Run,Result,Items Found,Inventory Status,Notes,Timestamp,Delay,FPS,Characters,Cutscene,Dupe';
+  const rows = runs.map((r, i) => {
+    const ts = r.ts ? new Date(r.ts).toISOString() : '';
+    const c = r.settings || {};
+    return `${i+1},${r.result},${r.items},"${r.inv}","${r.notes.replace(/"/g, '""')}",${ts},${c.delay||''},${c.fps||''},${c.chars||''},${c.cutscene||''},${c.dupe||''}`;
+  });
+  const csv = [header, ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `EsperanzaRuns_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV exported', 'success');
+}
+
+function backupJSON() {
+  const data = {
+    runs: loadRuns(),
+    settings: getSettings(),
+    exportedAt: new Date().toISOString(),
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `EsperanzaBackup_${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(`Backed up ${data.runs.length} runs`, 'success');
+}
+
+function restoreJSON(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!Array.isArray(data.runs)) throw new Error('Invalid backup: missing runs array');
+      const count = data.runs.length;
+      if (!confirm(`Restore ${count} runs from backup? Current data will be replaced.`)) return;
+      saveRuns(data.runs);
+      // Restore settings if present
+      if (data.settings) {
+        Object.entries(data.settings).forEach(([key, val]) => {
+          const el = document.getElementById('s-' + key);
+          if (el) { el.value = val; el.dispatchEvent(new Event('change')); }
+        });
+      }
+      render();
+      showToast(`Restored ${count} runs from backup`, 'success');
+    } catch (err) {
+      showToast('Invalid backup file: ' + err.message, 'fail');
+    }
+  };
+  reader.readAsText(file);
+  input.value = ''; // reset so same file can be re-selected
+}
+
+// ── Helpers ─────────────────────────────────────────────
+function scrollToBottom() {
+  const wrap = document.getElementById('table-scroll');
+  if (wrap) setTimeout(() => wrap.scrollTop = wrap.scrollHeight, 80);
+}
+
+// ── Smart Auto-fill in Detail Form ──────────────────────
+document.getElementById('f-result').addEventListener('change', e => {
+  if (e.target.value === 'FAIL') {
+    document.getElementById('f-items').value = '0';
+    document.getElementById('f-inv').value   = 'EMPTY';
+  } else {
+    document.getElementById('f-items').value = '3';
+    document.getElementById('f-inv').value   = 'QUICK USE + SAFE';
+  }
+});
+
+document.getElementById('f-items').addEventListener('input', e => {
+  const val = parseInt(e.target.value, 10);
+  if (val === 0) {
+    document.getElementById('f-inv').value = 'EMPTY';
+  } else if (val > 0) {
+    document.getElementById('f-inv').value = 'QUICK USE + SAFE';
+  }
+});
+
+// Enter in notes submits
+document.getElementById('f-notes').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); addRunFromForm(); }
+});
+
+// ── Keyboard Shortcuts (S / F for quick add) ────────────
+document.addEventListener('keydown', e => {
+  // Skip if user is typing in an input/select
+  const tag = document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+
+  if (e.key === 's' || e.key === 'S') { e.preventDefault(); quickAdd('SUCCESS'); }
+  if (e.key === 'f' || e.key === 'F') { e.preventDefault(); quickAdd('FAIL'); }
+});
+
+// ── Settings Persistence ────────────────────────────────
+document.querySelectorAll('.settings-row input').forEach(input => {
+  input.addEventListener('change', () => {
+    const settings = {};
+    document.querySelectorAll('.settings-row input').forEach(el => {
+      settings[el.id] = el.value;
+    });
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  });
+});
+
+(function loadSettings() {
+  const raw = localStorage.getItem(SETTINGS_KEY);
+  if (!raw) return;
+  try {
+    const s = JSON.parse(raw);
+    Object.entries(s).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val;
+    });
+  } catch { /* ignore */ }
+})();
+
+// ── Periodic timestamp refresh ──────────────────────────
+setInterval(() => {
+  document.querySelectorAll('.ts-cell').forEach(td => {
+    // Re-render relative times without full re-render
+  });
+}, 60000);
+
+// ── Init ────────────────────────────────────────────────
+initPresets();
+render();
+</script>
+</body>
+</html>
